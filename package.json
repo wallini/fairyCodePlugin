@@ -1,0 +1,27 @@
+{
+  "name": "fairgui_code_plugin",
+  "version": "0.0.1",
+  "description": "fairgui_code_plugin",
+  "author": "414713276@qq.com",
+  "main": "main.js",
+  "main-menu": {
+    "i18n:MAIN_MENU.package.title/fairgui代码生成/生成": {
+      "accelerator": "CmdOrCtrl+g",
+      "message": "fairgui_code_plugin:gencode"
+    }
+  },
+  "panel": {
+    "main": "panel/index.js",
+    "type": "dockable",
+    "title": "fairgui_code_plugin",
+    "width": 400,
+    "height": 300
+  },
+  "dependencies": {
+    "fs-extra": "^8.1.0",
+    "glob": "^7.1.6",
+    "socket.io-client": "^2.3.0",
+    "socket.io-stream": "^0.9.1",
+    "tar": "^6.0.1"
+  }
+}
