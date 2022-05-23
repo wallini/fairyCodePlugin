@@ -7,6 +7,7 @@ const ss = require("socket.io-stream");
 const fse = require("fs-extra");
 const Path = require("path");
 const genImport = require("./importHandle");
+const genUIConfig = require("./genUIConfig");
 
 // let socket = io.connect("http://127.0.0.1:3001/");
 // let socket = io.connect("http://192.168.88.137:3001/");
@@ -157,6 +158,15 @@ function result(msg) {
     result.binderCode.codeContent,
     { encoding: "utf8" }
   );
+
+  //处理uiconfig文件
+  if (configJson.bunldes[uiProject]) {
+    let bundleName = configJson.outPath.replace("/views", "");
+    genUIConfig(bundleName, configJson.filePrefix, configJson);
+  } else {
+    // hall
+    genUIConfig("", configJson.filePrefix, configJson);
+  }
 
   if (configJson.dirFilter.length) {
     configJson.dirFilter.forEach((dir) => {

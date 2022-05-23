@@ -2,41 +2,30 @@ const fse = require("fs-extra");
 const glob = require("glob");
 const path = require("path");
 
-function main() {
-  const args = process.argv.slice(2);
-  let bundleName = "";
-  if (args[0] == "-b") {
-    bundleName = args[1];
-  }
+const EditorPath = Editor.Project.path;
 
-  let filePrefix = "";
-  // let filePrefix = "MJ";
-  if (args[2] == "-p") {
-    filePrefix = args[3];
-  }
-
+function genUIConfigCode(bundleName, filePrefix, configJson) {
   if (bundleName.length) {
     //生成bundle的uiconfig配置文件
-    const scanDir = `./assets/${bundleName}/views/**/*.ts`;
+    const scanDir = EditorPath + `/assets/${configJson.outPath}/**/*.ts`;
     glob(scanDir, (err, scanFiles) => {
       const files = scanFiles
         .filter((file) => !file.includes("uiInterface"))
-        .filter((file) => !file.includes("GameBinder.ts"));
+        .filter((file) => !file.includes("GameBinder.ts"))
+        .filter((file) => !file.includes("UIConfig.ts"));
 
       let gameBinderClass = "";
-      let gamebinderPath = "";
       let classMap = {};
       const pkgNamesSet = new Set();
 
       files.forEach((file) => {
-        const regexStr = `./assets/${bundleName}/views/(.*)/.*`;
+        const regexStr = EditorPath + `/assets/${configJson.outPath}/(.*)/.*`;
         const rx = new RegExp(regexStr);
 
         const pkgName = rx.exec(file)[1];
         const className = path.basename(file, ".ts");
         const isDialog = className.endsWith("Dialog");
         pkgNamesSet.add(pkgName);
-        console.log("pkgName", pkgName, className, isDialog);
 
         classMap[className] = {
           pkgName,
@@ -46,14 +35,10 @@ function main() {
 
         if (gameBinderClass.length == 0) {
           gameBinderClass = `${filePrefix}Gamebinder`;
-          gamebinderPath = `./views/${gameBinderClass}`;
         }
       });
 
-      console.log(gameBinderClass, gamebinderPath);
-      console.log(JSON.stringify(classMap, null, 2));
-
-      let codeStr = `import ${filePrefix}GameBinder from "./views/${filePrefix}GameBinder";
+      let codeStr = `import ${filePrefix}GameBinder from "./${filePrefix}GameBinder";
 `;
       //configmap
       codeStr += "\n const map = " + JSON.stringify(classMap, null, 2) + "\n";
@@ -61,9 +46,6 @@ function main() {
       //pkgNamesMap
       let pkgNamesMap = {};
       Array.from(pkgNamesSet).forEach((item) => (pkgNamesMap[item] = item));
-
-      // codeStr +=
-      //   "const PkgNamesMap = " + JSON.stringify(pkgNamesMap, null, 2) + "\n";
 
       //uires noraml code
 
@@ -77,28 +59,26 @@ export default function UIConfigInit(dependsFuncInit: Function) {
       `;
 
       fse.writeFileSync(
-        `./assets/${bundleName}/${filePrefix}UIconfig.ts`,
+        EditorPath + `/assets/${configJson.outPath}/${filePrefix}UIConfig.ts`,
         codeStr,
         "utf8"
       );
-
-      //
     });
   } else {
     //生成大厅的uiconfig配置文件
-    const scanDir = `./assets/scripts/views/**/*.ts`;
+    const scanDir = `${EditorPath}/assets/scripts/${configJson.outPath}/**/*.ts`;
     glob(scanDir, (err, scanFiles) => {
       const files = scanFiles
         .filter((file) => !file.includes("uiInterface"))
-        .filter((file) => !file.includes("GameBinder.ts"));
+        .filter((file) => !file.includes("GameBinder.ts"))
+        .filter((file) => !file.includes("UIConfig.ts"));
 
       let gameBinderClass = "";
-      let gamebinderPath = "";
       let classMap = {};
       const pkgNamesSet = new Set();
 
       files.forEach((file) => {
-        const regexStr = `./assets/scripts/views/(.*)/.*`;
+        const regexStr = `./assets/scripts/${configJson.outPath}/(.*)/.*`;
         const rx = new RegExp(regexStr);
 
         const pkgName = rx.exec(file)[1];
@@ -115,14 +95,11 @@ export default function UIConfigInit(dependsFuncInit: Function) {
 
         if (gameBinderClass.length == 0) {
           gameBinderClass = `Gamebinder`;
-          gamebinderPath = `./views/${gameBinderClass}`;
+          gamebinderPath = `./${configJson.outPath}/${gameBinderClass}`;
         }
       });
 
-      console.log(gameBinderClass, gamebinderPath);
-      console.log(JSON.stringify(classMap, null, 2));
-
-      let codeStr = `import GameBinder from "./views/GameBinder";
+      let codeStr = `import GameBinder from "./GameBinder";
 `;
       //configmap
       codeStr += "\n const map = " + JSON.stringify(classMap, null, 2) + "\n";
@@ -146,7 +123,8 @@ export default function UIConfigInit(dependsFuncInit: Function) {
       `;
 
       fse.writeFileSync(
-        `./assets/scripts/${filePrefix}UIConfig.ts`,
+        EditorPath +
+          `/assets/scripts/${configJson.outPath}/${filePrefix}UIConfig.ts`,
         codeStr,
         "utf8"
       );
@@ -156,4 +134,4 @@ export default function UIConfigInit(dependsFuncInit: Function) {
   }
 }
 
-main();
+module.exports = genUIConfigCode;
