@@ -11,6 +11,9 @@ function MetaRawTypeSet() {
       if (metaMap[file]) {
         return;
       }
+      if (!file.includes("/ui/")) {
+        return;
+      }
 
       let jsonObj = JSON.parse(fse.readFileSync(file, "utf-8"));
 
