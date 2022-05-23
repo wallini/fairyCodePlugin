@@ -8,6 +8,7 @@ const fse = require("fs-extra");
 const Path = require("path");
 const genImport = require("./importHandle");
 const genUIConfig = require("./genUIConfig");
+const metaRawTypeSet = require("./metaRawTypeSet");
 
 // let socket = io.connect("http://127.0.0.1:3001/");
 // let socket = io.connect("http://192.168.88.137:3001/");
@@ -207,7 +208,7 @@ function result(msg) {
         return file.indexOf(item) >= 0;
       });
 
-      if (file.indexOf("GameBinder") != -1) {
+      if (file.indexOf("GameBinder") != -1 || file.indexOf("UIConfig") != -1) {
         return false;
       }
 
@@ -225,6 +226,7 @@ function result(msg) {
   });
 
   Editor.log("生成完成");
+  metaRawTypeSet();
 }
 
 function bindSocketEvent(socket) {
